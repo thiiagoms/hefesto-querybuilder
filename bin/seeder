@@ -9,22 +9,19 @@ if (php_sapi_name() != 'cli') {
 }
 
 use TBuilder\Database\QueryBuilder;
-use TBuilder\Helpers\Env;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-Env::loadEnv();
-
 echo '[*] Running People seeder' . PHP_EOL;
 
-$builder = new QueryBuilder();
+$builder = new QueryBuilder('localhost', 3306, 'tbuilder', 'root', '');
 
 $faker = Faker\Factory::create();
 
 for ($i = 0; $i <= 50; $i++) {
     $data = [
-       'name' => $faker->name,
-       'email' => $faker->unique()->email
+        'name' => $faker->name,
+        'email' => $faker->unique()->email
     ];
 
     $builder->insert('user', $data);
