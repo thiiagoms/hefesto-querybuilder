@@ -17,7 +17,6 @@ use PDOStatement;
  */
 final class QueryBuilder
 {
-
     /**
      * Database connection
      *
@@ -33,8 +32,11 @@ final class QueryBuilder
     private function connect(): PDO
     {
         try {
-            $this->conn = new PDO("mysql:host={$this->dbHost};port={$this->dbPort};dbname={$this->dbName}",
-                $this->dbUser, $this->dbPass);
+            $this->conn = new PDO(
+                "mysql:host={$this->dbHost};port={$this->dbPort};dbname={$this->dbName}",
+                $this->dbUser,
+                $this->dbPass
+            );
             $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
             $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             return $this->conn;
@@ -58,8 +60,7 @@ final class QueryBuilder
         private string $dbName,
         private string $dbUser,
         private string $dbPass
-    )
-    {
+    ) {
         $this->db = $this->connect($dbHost, $dbPort, $dbName, $dbUser, $dbPass);
     }
 
@@ -93,14 +94,13 @@ final class QueryBuilder
      * @return array
      */
     public function select(
-        string  $table,
+        string $table,
         ?string $fields = null,
         ?string $where = null,
         ?string $groupBy = null,
         ?string $orderBy = null,
         ?string $limitBy = null
-    ): array
-    {
+    ): array {
         $fields = is_null($fields) ? '*' : $fields;
         $where = is_null($where) ? '' : "WHERE {$where}";
         $groupBy = is_null($groupBy) ? '' : "GROUP BY {$groupBy}";

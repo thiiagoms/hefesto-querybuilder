@@ -15,7 +15,6 @@ use Dotenv\Dotenv;
  */
 final class Env
 {
-
     /**
      * Default env path
      *
@@ -35,8 +34,7 @@ final class Env
             $path = !is_null($path) ? $path : self::ENVPATH;
             return (Dotenv::createImmutable($path))->load();
         } catch (\DomainException $e) {
-           die("Message: {$e->getMessage()}");
+            die("Message: {$e->getMessage()}");
         }
     }
-
 }
