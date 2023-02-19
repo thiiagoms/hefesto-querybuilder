@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace TBuilder\Database;
 
 use PDO;
+use PDOException;
 use PDOStatement;
 
 /**
@@ -16,6 +17,7 @@ use PDOStatement;
  */
 final class QueryBuilder
 {
+
     /**
      * Database connection
      *
@@ -23,9 +25,42 @@ final class QueryBuilder
      */
     private PDO $db;
 
-    public function __construct()
+    /**
+     * Make Database connection
+     *
+     * @return PDO
+     */
+    private function connect(): PDO
     {
-        $this->db = (new Database())->open();
+        try {
+            $this->conn = new PDO("mysql:host={$this->dbHost};port={$this->dbPort};dbname={$this->dbName}",
+                $this->dbUser, $this->dbPass);
+            $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            return $this->conn;
+        } catch (PDOException $e) {
+            die("ERROR: {$e->getMessage()}");
+        }
+    }
+
+    /**
+     * Init TBuilder with database credentials
+     *
+     * @param string $dbHost
+     * @param int $dbPort
+     * @param string $dbName
+     * @param string $dbUser
+     * @param string $dbPass
+     */
+    public function __construct(
+        private string $dbHost,
+        private int $dbPort,
+        private string $dbName,
+        private string $dbUser,
+        private string $dbPass
+    )
+    {
+        $this->db = $this->connect($dbHost, $dbPort, $dbName, $dbUser, $dbPass);
     }
 
     /**
@@ -47,7 +82,7 @@ final class QueryBuilder
     }
 
     /**
-     * TBuilder select
+     * TBuilder Select
      *
      * @param string $table
      * @param string|null $fields
@@ -78,7 +113,7 @@ final class QueryBuilder
     }
 
     /**
-     * TBuilder insert
+     * TBuilder Insert
      *
      * @param string $table
      * @param array $values
@@ -97,5 +132,40 @@ final class QueryBuilder
 
         return (int)$this->db->lastInsertId();
     }
-}
 
+    /**
+     * TBuilder Update
+     *
+     * @param string $table
+     * @param string $where
+     * @param array $payload
+     * @return bool
+     */
+    public function update(string $table, string $where, array $payload): bool
+    {
+        $fields = array_keys($payload);
+        $implodeFields = implode('=?,', $fields);
+
+        $queryString = "UPDATE {$table} SET {$implodeFields}=? WHERE {$where}";
+        $result = $this->executeQuery($queryString, array_values($payload));
+
+        return $result->rowCount() == '1' ? true : false;
+    }
+
+    /**
+     * TBuilder Delete
+     *
+     * @param string $table
+     * @param string $where
+     * @return bool
+     */
+    public function delete(string $table, string $where = null): bool
+    {
+        $where = is_null($where) ? '' : "WHERE {$where}";
+        $queryString = "DELETE FROM {$table} {$where};";
+
+        $result = $this->executeQuery($queryString);
+
+        return $result->rowCount() == '1' ? true : false;
+    }
+}
