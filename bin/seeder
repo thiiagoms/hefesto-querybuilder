@@ -1,0 +1,34 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+if (php_sapi_name() != 'cli') {
+    echo "<h1>ONLY IN CLI MODE</h1>";
+    exit;
+}
+
+use TBuilder\Database\QueryBuilder;
+use TBuilder\Helpers\Env;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+Env::loadEnv();
+
+echo '[*] Running People seeder' . PHP_EOL;
+
+$builder = new QueryBuilder();
+
+$faker = Faker\Factory::create();
+
+for ($i = 0; $i <= 50; $i++) {
+    $data = [
+       'name' => $faker->name,
+       'email' => $faker->unique()->email
+    ];
+
+    $builder->insert('user', $data);
+}
+
+echo '[*] Finish seeder' . PHP_EOL;
+
