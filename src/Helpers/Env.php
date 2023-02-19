@@ -9,9 +9,8 @@ use Dotenv\Dotenv;
 /**
  * Env load helper
  *
- *
- * @package SRc\Helpers
- * @author  Thiao Silva <thiagom.devsec@gmail.com>
+ * @package Src\Helpers
+ * @author  Thiago Silva <thiagom.devsec@gmail.com>
  * @version 1.0
  */
 final class Env
@@ -35,8 +34,8 @@ final class Env
         try {
             $path = !is_null($path) ? $path : self::ENVPATH;
             return (Dotenv::createImmutable($path))->load();
-        } catch (\Exception $e) {
-            echo $e->getMessage();
+        } catch (\DomainException $e) {
+           die("Message: {$e->getMessage()}");
         }
     }
 
